@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Kenneth Yandan logo">
+  <rect width="64" height="64" rx="18" fill="#14110F"/>
+  <g stroke="#F4F1EA" stroke-width="4.5" stroke-linecap="round" fill="none">
+    <path d="M22 15v34"/>
+    <path d="M22 33c9 0 12-6 19-15"/>
+    <path d="M22 33c9 0 12 6 19 15"/>
+  </g>
+  <circle cx="44" cy="15.5" r="5" fill="#FF6A2B"/>
+  <circle cx="44" cy="48.5" r="5" fill="#F4F1EA"/>
+</svg>
