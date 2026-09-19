@@ -301,3 +301,14 @@ a,button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
   .more{width:100%;justify-content:center}
   .marquee .track span{font-size:24px}
 }
+
+/* flow: inline description under the tapped step on small screens */
+.idetail{display:none}
+@media (max-width:980px){
+  .nodes{grid-template-columns:1fr}
+  .flow-ui{margin-top:36px}
+  .detail{display:none}
+  .idetail:not(:empty){display:block;margin-top:8px;padding:20px 22px;border:1px solid var(--accent-2);border-radius:var(--r);animation:in .35s var(--ease) both}
+  .idetail h3{font:600 24px/1.15 var(--serif);margin-bottom:8px}
+  .idetail p{color:color-mix(in srgb,var(--on-ink) 78%,transparent);font-size:16px}
+}

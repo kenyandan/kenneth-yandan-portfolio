@@ -80,20 +80,28 @@
     ['Call lands on the calendar', 'They book through your calendar, reminders reduce no-shows, and the pipeline moves. Your team only shows up for the conversation.']
   ];
   const nodes = $$('.node');
+  const mobile = matchMedia('(max-width:980px)');
+  // on small screens the description opens directly under the tapped step
+  const inline = nodes.map(n => { const d = document.createElement('div'); d.className = 'idetail'; n.closest('li').appendChild(d); return d; });
   let cur = 0, timer;
   const show = i => {
     cur = i;
-    nodes.forEach((n, k) => { n.classList.toggle('on', k === i); n.setAttribute('aria-pressed', k === i); });
+    nodes.forEach((n, k) => { n.classList.toggle('on', k === i); n.setAttribute('aria-pressed', k === i); n.setAttribute('aria-expanded', k === i); });
     $('#d-step').textContent = `Step ${i + 1} / ${steps.length}`;
     $('#d-title').textContent = steps[i][0];
     $('#d-text').textContent = steps[i][1];
+    inline.forEach((d, k) => { d.innerHTML = ''; if (k !== i) return; const t = document.createElement('h3'), p = document.createElement('p'); t.textContent = steps[i][0]; p.textContent = steps[i][1]; d.append(t, p); });
   };
-  const play = () => { if (reduce) return; stop(); timer = setInterval(() => show((cur + 1) % steps.length), 3200); };
   const stop = () => clearInterval(timer);
-  nodes.forEach((n, i) => n.addEventListener('click', () => { show(i); stop(); }));
+  const play = () => { stop(); if (reduce || mobile.matches) return; timer = setInterval(() => show((cur + 1) % steps.length), 3200); };
+  nodes.forEach((n, i) => n.addEventListener('click', () => {
+    show(i); stop();
+    if (mobile.matches) requestAnimationFrame(() => inline[i].scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' }));
+  }));
   const fu = $('.flow-ui');
   fu.addEventListener('pointerenter', stop); fu.addEventListener('pointerleave', play);
   fu.addEventListener('focusin', stop);
+  mobile.addEventListener('change', play);
   show(0);
   new IntersectionObserver(es => es[0].isIntersecting ? play() : stop()).observe(fu);
 
