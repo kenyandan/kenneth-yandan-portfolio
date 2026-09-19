@@ -4,6 +4,10 @@
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const fine = matchMedia('(hover:hover) and (pointer:fine)').matches;
 
+  const hasG = !!(window.gsap && window.ScrollTrigger);
+  const fx = hasG && !reduce;
+  if (fx) $$('.row,.card,.job,main h2').forEach(el => el.classList.remove('reveal'));
+
   // theme
   const root = document.documentElement;
   $('#theme').addEventListener('click', () => {
@@ -234,7 +238,7 @@
   document.addEventListener('pointerover', e => {
     const t = e.target.closest('.item, a, button, input, textarea, label');
     let label = '';
-    if (t) label = t.classList.contains('item') ? 'View' : t.matches('.btn') ? 'Go' : '';
+    if (t) label = t.classList.contains('item') ? 'View' : t.matches('a[href*="calendly.com"]') ? 'Book' : t.matches('.btn') ? 'Go' : '';
     pointerEl.firstChild.textContent = label;
     pointerEl.classList.toggle('link', !!t && !label);
     pointerEl.classList.toggle('pill', !!label);
@@ -287,4 +291,176 @@
   });
 
   $('#yr').textContent = new Date().getFullYear();
+
+  // ---------- smooth scroll (Lenis) ----------
+  let lenis = null;
+  if (fx && window.Lenis) {
+    lenis = new Lenis({ duration: 1.15, easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)), smoothWheel: true });
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add(t => lenis.raf(t * 1000));
+    gsap.ticker.lagSmoothing(0);
+    document.addEventListener('click', e => {
+      const a = e.target.closest('a[href^="#"]');
+      if (!a) return;
+      const id = a.getAttribute('href');
+      if (id === '#book') return;
+      const t = id === '#top' || id === '#' ? 0 : $(id);
+      if (t === null) return;
+      e.preventDefault();
+      lenis.scrollTo(t, { offset: -76, duration: 1.5 });
+      history.replaceState(null, '', id === '#' ? location.pathname : id);
+    });
+  }
+
+  // ---------- booking pop-up ----------
+  const cal = $('#cal'), calBody = $('#cal-body'), calFrame = $('#cal-frame');
+  const CAL_URL = 'https://calendly.com/kennethyandan/contact';
+  let calTheme = null, lastFocus = null, closeT;
+  const calColors = () => root.dataset.theme === 'light'
+    ? 'background_color=fbf9f4&text_color=14110f&primary_color=c7431a'
+    : 'background_color=181613&text_color=f1ede4&primary_color=ff6a2b';
+  const calFail = () => { calBody.classList.remove('loading'); calFrame.innerHTML = `<p style="padding:32px;text-align:center;color:var(--muted)">The calendar didn’t load. <a href="${CAL_URL}" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">Open it in a new tab</a>.</p>`; };
+  const loadCal = () => {
+    const theme = root.dataset.theme === 'light' ? 'light' : 'dark';
+    if (calTheme === theme) return;
+    calTheme = theme; calBody.classList.add('loading'); calFrame.innerHTML = '';
+    const url = `${CAL_URL}?hide_gdpr_banner=1&${calColors()}`;
+    const go = () => {
+      window.Calendly.initInlineWidget({ url, parentElement: calFrame });
+      let n = 0;
+      const poll = setInterval(() => {
+        const f = calFrame.querySelector('iframe');
+        if (f) { clearInterval(poll); setTimeout(() => calBody.classList.remove('loading'), 9000); }
+        else if (++n > 80) { clearInterval(poll); calFail(); }
+      }, 100);
+    };
+    if (window.Calendly) return go();
+    const sc = document.createElement('script');
+    sc.src = 'https://assets.calendly.com/assets/external/widget.js'; sc.async = true;
+    sc.onload = go; sc.onerror = calFail;
+    document.head.appendChild(sc);
+  };
+  addEventListener('message', e => { if (e.origin === 'https://calendly.com' && e.data && typeof e.data.event === 'string' && e.data.event.indexOf('calendly.') === 0) calBody.classList.remove('loading'); });
+  const openCal = () => {
+    clearTimeout(closeT);
+    lastFocus = document.activeElement;
+    cal.hidden = false;
+    root.classList.add('modal-open');
+    if (lenis) lenis.stop();
+    setTimeout(() => cal.classList.add('open'), 30);
+    loadCal();
+    setTimeout(() => $('.cal-x').focus({ preventScroll: true }), 60);
+  };
+  const closeCal = () => {
+    cal.classList.remove('open');
+    root.classList.remove('modal-open');
+    if (lenis) lenis.start();
+    closeT = setTimeout(() => { cal.hidden = true; }, reduce ? 0 : 450);
+    if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
+    if (location.hash === '#book') history.replaceState(null, '', location.pathname);
+  };
+  document.addEventListener('click', e => {
+    const a = e.target.closest('a[href*="calendly.com/kennethyandan"]');
+    if (a && !a.closest('.cal') && !e.metaKey && !e.ctrlKey && !e.shiftKey) { e.preventDefault(); openCal(); return; }
+    if (e.target.closest('[data-close]')) closeCal();
+  });
+  addEventListener('keydown', e => {
+    if (cal.hidden) return;
+    if (e.key === 'Escape') return closeCal();
+    if (e.key === 'Tab') {
+      const f = $$('button, a[href], iframe', cal.querySelector('.cal-panel')).filter(x => x.offsetParent !== null);
+      if (!f.length) return;
+      const first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  });
+  if (location.hash === '#book') openCal();
+
+  // ---------- premium scroll animations (GSAP) ----------
+  if (fx) {
+    gsap.registerPlugin(ScrollTrigger);
+    ScrollTrigger.config({ ignoreMobileResize: true });
+    document.documentElement.classList.add('gsap-on');
+
+    // split text into masked words
+    const splitWords = el => {
+      const words = [];
+      const walk = node => {
+        [...node.childNodes].forEach(n => {
+          if (n.nodeType === 3) {
+            const frag = document.createDocumentFragment();
+            n.textContent.split(/(\s+)/).forEach(part => {
+              if (!part) return;
+              if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(' ')); return; }
+              const w = document.createElement('span'); w.className = 'w';
+              const i = document.createElement('span'); i.textContent = part; w.appendChild(i);
+              frag.appendChild(w); words.push(i);
+            });
+            n.replaceWith(frag);
+          } else if (n.nodeType === 1) walk(n);
+        });
+      };
+      walk(el);
+      return words;
+    };
+
+    // headings: words rise out of a mask
+    $$('main h2').forEach(h2 => {
+      const words = splitWords(h2);
+      gsap.from(words, { yPercent: 115, rotate: 3, duration: 1, ease: 'power4.out', stagger: .055, scrollTrigger: { trigger: h2, start: 'top 88%' } });
+    });
+
+    // about paragraph: words light up as you scroll
+    const lead = $('.about-grid > div > p');
+    if (lead) {
+      const words = [];
+      const walk = n => [...n.childNodes].forEach(c => {
+        if (c.nodeType === 3) {
+          const f = document.createDocumentFragment();
+          c.textContent.split(/(\s+)/).forEach(p => { if (!p) return; if (/^\s+$/.test(p)) return f.appendChild(document.createTextNode(' ')); const sp = document.createElement('span'); sp.className = 'sw'; sp.textContent = p; f.appendChild(sp); words.push(sp); });
+          c.replaceWith(f);
+        } else if (c.nodeType === 1) walk(c);
+      });
+      walk(lead);
+      gsap.fromTo(words, { opacity: .18 }, { opacity: 1, ease: 'none', stagger: .12, scrollTrigger: { trigger: lead, start: 'top 82%', end: 'bottom 52%', scrub: true } });
+    }
+
+    // section divider lines draw in
+    $$('section.wrap:not(.about)').forEach(sec => gsap.fromTo(sec, { '--ls': 0 }, { '--ls': 1, duration: 1.4, ease: 'expo.out', scrollTrigger: { trigger: sec, start: 'top 92%' } }));
+
+    // staggered entrances
+    const batchIn = (sel, from, opts = {}) => {
+      const els = $$(sel); if (!els.length) return;
+      gsap.set(els, from);
+      ScrollTrigger.batch(els, {
+        start: 'top 92%',
+        onEnter: b => gsap.to(b, { y: 0, opacity: 1, scale: 1, rotate: 0, duration: .95, ease: 'power3.out', stagger: .09, overwrite: true, clearProps: 'transform,opacity', ...opts })
+      });
+    };
+    batchIn('.row', { y: 46, opacity: 0 });
+    batchIn('.job', { y: 46, opacity: 0 });
+    batchIn('.card', { y: 70, opacity: 0, scale: .95, rotate: 1.5 });
+    batchIn('.stats > div', { y: 34, opacity: 0 });
+    batchIn('.node', { y: 30, opacity: 0 }, { stagger: .07 });
+
+    // hero: portrait parallax + gentle exit
+    const heroImg = $('.frame img');
+    if (heroImg) gsap.fromTo(heroImg, { yPercent: -6, scale: 1.14 }, { yPercent: 6, scale: 1.14, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
+    gsap.to('.hero-copy', { yPercent: -7, opacity: .4, ease: 'none', scrollTrigger: { trigger: '.hero', start: '25% top', end: 'bottom top', scrub: true } });
+    gsap.to('.portrait', { yPercent: -5, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
+
+    // marquee speeds up with scroll velocity
+    const anim = $('.track') && $('.track').getAnimations()[0];
+    if (anim) {
+      let rate = 1;
+      ScrollTrigger.create({ start: 0, end: 'max', onUpdate: self => { rate = 1 + Math.min(Math.abs(self.getVelocity()) / 260, 9); } });
+      gsap.ticker.add(() => { const cur = anim.playbackRate; anim.playbackRate = cur + (rate - cur) * .1; rate += (1 - rate) * .06; });
+    }
+
+    // contact form + footer
+    gsap.from('.c-links li', { y: 24, opacity: 0, stagger: .1, duration: .9, ease: 'power3.out', clearProps: 'all', scrollTrigger: { trigger: '.c-links', start: 'top 90%' } });
+    addEventListener('load', () => ScrollTrigger.refresh());
+  }
+
 })();

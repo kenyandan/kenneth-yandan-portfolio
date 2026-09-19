@@ -31,6 +31,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..700;1,9..144,500..700&family=Inter+Tight:wght@400..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="dns-prefetch" href="https://assets.calendly.com">
 <link rel="stylesheet" href="styles.css">
 <script>try{var t=localStorage.getItem('ky-theme');document.documentElement.dataset.theme=t==='light'?'light':'dark'}catch(e){}</script>
 </head>
@@ -257,6 +259,30 @@
   <a class="mono" href="#top">Back to top ↑</a>
 </footer>
 
-<script src="script.js"></script>
+<!-- Booking pop-up (Calendly) -->
+<div class="cal" id="cal" hidden>
+  <div class="cal-bg" data-close></div>
+  <div class="cal-panel" role="dialog" aria-modal="true" aria-labelledby="cal-t" data-lenis-prevent>
+    <header class="cal-head">
+      <div class="cal-id">
+        <img src="assets/logo.svg" alt="" width="40" height="40">
+        <div><p class="cal-title" id="cal-t">Book a free call</p><p class="cal-sub">Choose a time that works for you.</p></div>
+      </div>
+      <button class="cal-x" type="button" data-close aria-label="Close booking window">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </header>
+    <div class="cal-body loading" id="cal-body">
+      <div class="cal-frame" id="cal-frame"></div>
+      <div class="cal-skel" aria-hidden="true"><div class="spin"></div><span class="mono">Loading calendar</span></div>
+    </div>
+    <footer class="cal-foot"><a class="mono" id="cal-alt" href="https://calendly.com/kennethyandan/contact" target="_blank" rel="noopener noreferrer">Trouble loading? Open in a new tab ↗</a></footer>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.3.4/dist/lenis.min.js" defer></script>
+<script src="script.js" defer></script>
 </body>
 </html>
