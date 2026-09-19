@@ -1,6 +1,8 @@
 wrangler.jsonc
+worker.js
 README.md
 .gitignore
+.assetsignore
 .claude
 .git
 node_modules
