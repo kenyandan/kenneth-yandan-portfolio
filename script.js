@@ -137,7 +137,7 @@
   ];
   const arrow = '<svg class="ar" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>';
   const list = $('#list');
-  const FEATURED = [1, 2, 3, 8, 15, 16];   // positions in the list above
+  const FEATURED = [2, 3, 4, 8, 15, 16];   // positions in the list above
   const LIMIT = 6;
   const items = work.map(([c, t, url, pid], i) => {
     const li = document.createElement('li');
@@ -154,7 +154,7 @@
   let filter = 'all', expanded = false;
   const renderList = () => {
     let vis = items.filter(x => filter === 'all' || x.c === filter);
-    if (filter === 'all') vis = [...vis.filter(x => FEATURED.includes(x.pos)).sort((p, q) => FEATURED.indexOf(p.pos) - FEATURED.indexOf(q.pos)), ...vis.filter(x => !FEATURED.includes(x.pos))];
+    vis = [...vis.filter(x => FEATURED.includes(x.pos)).sort((p, q) => FEATURED.indexOf(p.pos) - FEATURED.indexOf(q.pos)), ...vis.filter(x => !FEATURED.includes(x.pos))];
     items.forEach(x => { x.li.hidden = true; });
     vis.forEach((x, k) => {
       x.li.hidden = !expanded && k >= LIMIT;
