@@ -18,8 +18,8 @@
   const speedEl = () => $('#m-speed');
   const startSpeed = () => {
     hud.t0 = performance.now(); cancelAnimationFrame(hud.raf); speedEl().classList.add('counting');
-    const tick = () => { speedEl().textContent = ((performance.now() - hud.t0) / 1000).toFixed(2) + 's'; hud.raf = requestAnimationFrame(tick); };
-    tick();
+    const frame = () => { speedEl().textContent = ((performance.now() - hud.t0) / 1000).toFixed(2) + 's'; hud.raf = requestAnimationFrame(frame); };
+    frame();
   };
   const stopSpeed = () => { if (!hud.raf) return; cancelAnimationFrame(hud.raf); hud.raf = 0; speedEl().classList.remove('counting'); speedEl().classList.add('tick'); };
 
@@ -86,7 +86,7 @@
         const txt = h('div'); txt.append(h('b', '', st.t), h('small', '', st.s));
         const state = h('span', 'state', 'Idle');
         box.append(ic, txt, state); li.append(box); ol.append(li);
-        node[st.k] = { li, ic, state, sub: txt.querySelector('small'), icon: st.ic };
+        node[st.k] = { li, ic, state, sub: txt.querySelector('small'), icon: st.ic, title: st.t };
       });
       wf.append(ol);
     });
@@ -164,7 +164,7 @@
     if (type !== 'note') {
       const dots = h('div', 'typing'); dots.innerHTML = '<i></i><i></i><i></i>';
       thread.append(dots); scrollThread();
-      await sleep(reduce ? 150 : 700); dots.remove();
+      await sleep(reduce ? 150 : 1300); dots.remove();
     }
     const m = h('div', `msg ${type === 'note' ? 'note' : 'out'} ${type === 'mail' ? 'mail' : ''}`);
     m.append(h('span', 'meta', meta));
@@ -173,7 +173,6 @@
     m.append(b); thread.append(m); scrollThread();
     hot('inbox');
     if (type !== 'note') { bump('msg', '#m-msg'); msgCount++; $('#s-inbox').textContent = `${msgCount} message${msgCount > 1 ? 's' : ''}`; }
-    ping('inbox');
   };
   const setWho = (name, sub) => {
     const who = $('#who');
@@ -194,37 +193,52 @@
     while (log.children.length > 5) log.firstChild.remove();
   };
 
-  // ---------- status + mobile tabs ----------
+  // ---------- status ----------
   const stat = (id, text, cls) => { const e = $('#s-' + id); e.textContent = text; e.className = 'st mono ' + (cls || ''); };
+
+  // ---------- mobile: tabs switch themselves to follow the action ----------
+  // On phones one pane shows at a time; the active tab jumps to whichever pane is changing.
+  // Tapping a tab yourself pauses auto-switching for a few seconds (other tabs then get a dot).
   const tabs = $$('.tab'), panes = { page: $('#p-page'), flow: $('#p-flow'), pipe: $('#p-pipe'), inbox: $('#p-inbox') };
-  let curTab = 'page';
-  const showTab = (p, auto) => {
+  let curTab = 'page', pauseUntil = 0;
+  const showTab = p => {
     curTab = p;
     tabs.forEach(t => { const on = t.dataset.p === p; t.classList.toggle('on', on); t.setAttribute('aria-selected', on); if (on) t.classList.remove('ping'); });
     Object.entries(panes).forEach(([k, el]) => el.classList.toggle('on', k === p));
-    if (auto && mobile.matches) {
-      const y = $('.lab').getBoundingClientRect().top + scrollY - 70;
-      if (scrollY < y - 40 || scrollY > y + 200) scrollTo({ top: y, behavior: reduce ? 'auto' : 'smooth' });
-    }
   };
-  const ping = p => { if (mobile.matches && curTab !== p) $(`.tab[data-p="${p}"]`).classList.add('ping'); };
-  tabs.forEach(t => t.addEventListener('click', () => showTab(t.dataset.p)));
+  const bringIntoView = () => {
+    const y = $('.lab').getBoundingClientRect().top + scrollY - 70;
+    if (Math.abs(scrollY - y) > 60) scrollTo({ top: y, behavior: reduce ? 'auto' : 'smooth' });
+  };
+  const follow = (p, force) => {
+    if (!mobile.matches || p === curTab) return;
+    if (!force && Date.now() < pauseUntil) { $(`.tab[data-p="${p}"]`).classList.add('ping'); return; }
+    showTab(p);
+  };
+  tabs.forEach(t => t.addEventListener('click', () => { showTab(t.dataset.p); pauseUntil = Date.now() + 5000; }));
+  // which pane shows the result of each workflow action
+  const FOCUS = { contact: 'inbox', tags: 'inbox', opp: 'pipe', sms: 'inbox', email: 'inbox', contacted: 'pipe', booked: 'pipe', tags2: 'inbox', sms2: 'inbox', notify: 'inbox' };
+
+  // progress line under the tabs
+  const TOTAL = 14;
+  const tick = () => { $('#tk-bar').style.width = (hud.act / TOTAL * 100) + '%'; };
 
   // ---------- run control ----------
   // canBook: the calendar only accepts a booking once the intake workflow has finished
   let run = 0, nudgeTimer, canBook = false;
   const sleep = ms => new Promise(r => setTimeout(r, ms));
-  const pace = ms => reduce ? Math.min(ms, 250) : ms;
+  const pace = ms => reduce ? Math.min(ms, 250) : ms * 2;
   const lead = {};
   let myCard;
 
   const step = async (id, k, label, fn, ms = 900, sub) => {
     if (id !== run) throw 0;
-    setNode(k, 'run', 'Running', sub); ping('flow');
+    setNode(k, 'run', 'Running', sub);
+    follow(FOCUS[k] || 'flow');
     await sleep(pace(ms));
     if (id !== run) throw 0;
     await fn?.();
-    setNode(k, 'done', 'Done'); bump('act', '#m-act');
+    setNode(k, 'done', 'Done'); bump('act', '#m-act'); tick();
     $(`.prep li[data-k="${k}"]`)?.classList.add('ok');
     say(label, true);
     await sleep(pace(260));
@@ -288,18 +302,18 @@
     stat('flow', 'Running', 'run'); stat('page', 'Submitted', 'live');
     sys('Running', 'run'); startSpeed();
     go('prep');
-    if (mobile.matches) showTab('flow', true);
+    pauseUntil = 0; bringIntoView(); follow('flow', true);
     say(`Form submission received from ${lead.name}`);
     await step(id, 'trigger', 'Trigger fired: Free inspection form', null, 600);
     await step(id, 'contact', `Contact created: ${lead.name} (${lead.phone})`, () => {
-      setWho(lead.name, `${lead.email} · ${lead.phone}`); ping('inbox');
+      setWho(lead.name, `${lead.email} · ${lead.phone}`)
     }, 900, `${lead.name} · ${lead.phone}`);
     await step(id, 'tags', 'Tags added: new-lead, roofing, ' + svcTag(), async () => {
       for (const t of ['new-lead', 'roofing', svcTag()]) { addTag(t); await sleep(pace(160)); }
     }, 700, `new-lead · roofing · ${svcTag()}`);
     await step(id, 'opp', `Opportunity created in New Lead (${money(lead.val)})`, () => {
       myCard = oppCard(lead.name, lead.svc, lead.val); myCard.classList.add('you', 'enter');
-      cols['New Lead'].list.prepend(myCard); flash('New Lead'); tally(); ping('pipe');
+      cols['New Lead'].list.prepend(myCard); flash('New Lead'); tally();
       board.scrollTo({ left: 0 });
     }, 900, `Roofing leads → New Lead · ${money(lead.val)}`);
     await step(id, 'sms', 'SMS delivered to ' + lead.phone, () => addMsg('sms', `SMS · ${clock()}`,
@@ -312,13 +326,14 @@
     canBook = true; go('book');
     stat('flow', 'Waiting for booking', 'run'); sys('Waiting', 'wait');
     say('Waiting for the lead to book…');
-    if (mobile.matches) { await sleep(pace(1600)); if (id === run && curTab === 'flow') showTab('page', true); }
+    // give the card move a beat on screen, then show the calendar (unless they already booked)
+    await sleep(pace(700)); if (id === run && canBook) follow('page', true);
     nudgeTimer = setTimeout(() => {
       if (id !== run) return;
-      say('No booking yet: nudge SMS sent (demo: 10 min shortened to 25 s)', true);
+      say('No booking yet: nudge SMS sent (demo: 10 min shortened to 40 s)', true);
       addMsg('sms', `SMS · ${clock()}`, `Hi ${lead.name}, still want that free ${lead.svc.toLowerCase()}? We have openings this week: nlroof.co/book`);
       setNode('wait', 'wait', 'Waiting', 'Nudge SMS sent, still waiting for a booking');
-    }, reduce ? 6000 : 25000);
+    }, reduce ? 6000 : 40000);
   }
 
   // ---------- booking ----------
@@ -362,10 +377,11 @@
 
   async function booked(id) {
     setNode('wait', 'done', 'Booked', `Booked for ${lead.when}`); bump('act', '#m-act');
+    tick();
     sys('Running', 'run');
     say(`Appointment booked: ${lead.when}`, true);
     stat('flow', 'Running', 'run');
-    if (mobile.matches) { await sleep(pace(900)); if (id !== run) return; showTab('pipe', true); }
+    pauseUntil = 0;
     await step(id, 'trigger2', 'Trigger fired: Appointment booked', null, 600);
     await step(id, 'booked', 'Opportunity moved: Contacted → Booked', () => moveCard(myCard, 'Booked'), 800);
     await step(id, 'tags2', 'Tags updated: +booked, −new-lead', () => {
@@ -378,6 +394,7 @@
     await step(id, 'remind', 'Reminders scheduled: 24 h and 1 h before', null, 800);
     if (id !== run) return;
     stat('flow', 'Completed', 'live'); sys('Complete', 'ok');
+    await sleep(pace(600)); if (id === run) follow('pipe', true);
     say('All workflows finished. 0 manual steps.', true);
   }
 
@@ -393,13 +410,13 @@
     form.reset(); err.textContent = '';
     const btn = $('.lp-btn', form); btn.classList.remove('busy'); btn.textContent = 'Get my free inspection';
     stat('page', 'Live', 'live'); stat('flow', 'Idle');
-    tabs.forEach(t => t.classList.remove('ping'));
     cancelAnimationFrame(hud.raf); hud.raf = 0; hud.act = 0; hud.msg = 0;
     $('#m-act').textContent = '0'; $('#m-msg').textContent = '0'; speedEl().textContent = '--.--s'; speedEl().className = '';
-    sys('Armed');
+    sys('Armed'); tick();
+    tabs.forEach(t => t.classList.remove('ping'));
     go('form');
   };
-  $('#again').addEventListener('click', () => { reset(); showTab('page', true); form.fname.focus({ preventScroll: true }); });
+  $('#again').addEventListener('click', () => { reset(); showTab('page'); bringIntoView(); form.fname.focus({ preventScroll: true }); });
   $('#start').addEventListener('click', e => {
     e.preventDefault();
     showTab('page');
