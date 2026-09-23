@@ -316,7 +316,7 @@
     const theme = root.dataset.theme === 'light' ? 'light' : 'dark';
     if (calTheme === theme) return;
     calTheme = theme; calBody.classList.add('loading'); calFrame.innerHTML = '';
-    const url = `${CAL_URL}?hide_gdpr_banner=1&${calColors()}`;
+    const url = `${CAL_URL}?hide_gdpr_banner=1&hide_event_type_details=1&hide_landing_page_details=1&${calColors()}`;
     const go = () => {
       window.Calendly.initInlineWidget({ url, parentElement: calFrame });
       let n = 0;
@@ -332,7 +332,13 @@
     sc.onload = go; sc.onerror = calFail;
     document.head.appendChild(sc);
   };
-  addEventListener('message', e => { if (e.origin === 'https://calendly.com' && e.data && typeof e.data.event === 'string' && e.data.event.indexOf('calendly.') === 0) calBody.classList.remove('loading'); });
+  addEventListener('message', e => {
+    if (e.origin !== 'https://calendly.com' || !e.data || typeof e.data.event !== 'string' || e.data.event.indexOf('calendly.') !== 0) return;
+    calBody.classList.remove('loading');
+    // size the pop-up to Calendly's content so it never scrolls inside (capped by the viewport in CSS)
+    const h = e.data.event === 'calendly.page_height' && parseInt(e.data.payload && e.data.payload.height, 10);
+    if (h > 200) cal.style.setProperty('--cal-h', h + 'px');
+  });
   const openCal = () => {
     clearTimeout(closeT);
     lastFocus = document.activeElement;

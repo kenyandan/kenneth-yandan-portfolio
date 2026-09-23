@@ -297,7 +297,7 @@ html.lenis,html.lenis body{height:auto}
 .cal{position:fixed;inset:0;z-index:250;display:grid;place-items:center;padding:24px}
 .cal[hidden]{display:none}
 .cal-bg{position:absolute;inset:0;background:color-mix(in srgb,#000 66%,transparent);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);opacity:0;transition:opacity .4s var(--ease)}
-.cal-panel{position:relative;display:flex;flex-direction:column;width:min(980px,100%);height:min(780px,calc(100dvh - 48px));background:var(--surface);border:1px solid var(--line);border-radius:28px;box-shadow:0 50px 140px -30px #000d,0 0 0 1px color-mix(in srgb,var(--accent-2) 10%,transparent);overflow:hidden;opacity:0;transform:translateY(28px) scale(.96);transition:opacity .4s var(--ease),transform .6s var(--ease)}
+.cal-panel{position:relative;display:flex;flex-direction:column;width:min(980px,100%);max-height:calc(100dvh - 48px);background:var(--surface);border:1px solid var(--line);border-radius:28px;box-shadow:0 50px 140px -30px #000d,0 0 0 1px color-mix(in srgb,var(--accent-2) 10%,transparent);overflow:hidden;opacity:0;transform:translateY(28px) scale(.96);transition:opacity .4s var(--ease),transform .6s var(--ease)}
 .cal-panel::before{content:'';position:absolute;inset:-40% -20% auto auto;width:60%;height:70%;background:radial-gradient(closest-side,color-mix(in srgb,var(--accent-2) 26%,transparent),transparent);pointer-events:none}
 .cal.open .cal-bg{opacity:1}.cal.open .cal-panel{opacity:1;transform:none}
 .cal-head{position:relative;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 18px 16px 22px;border-bottom:1px solid var(--line)}
@@ -306,7 +306,7 @@ html.lenis,html.lenis body{height:auto}
 .cal-sub{color:var(--muted);font-size:14px;font-weight:500}
 .cal-x{width:44px;height:44px;flex:none;display:grid;place-items:center;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;transition:background .2s,transform .4s var(--ease),border-color .2s}
 .cal-x:hover{background:var(--ink);color:var(--on-ink);border-color:var(--ink);transform:rotate(90deg)}
-.cal-body{position:relative;flex:1;min-height:0}
+.cal-body{position:relative;flex:0 1 auto;height:var(--cal-h,640px);min-height:0;transition:height .35s var(--ease)}
 .cal-frame{position:absolute;inset:0}
 .cal-frame iframe,.cal-frame .calendly-inline-widget{position:absolute;inset:0;width:100%!important;height:100%!important;min-width:0!important;border:0}
 .cal-skel{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;gap:16px;background:var(--surface);color:var(--muted);transition:opacity .5s,visibility .5s;pointer-events:none}
@@ -321,7 +321,7 @@ html.modal-open .cur{display:none}
 html.modal-open{overflow:hidden}
 @media (max-width:640px){
   .cal{padding:0;place-items:end center}
-  .cal-panel{width:100%;height:min(92dvh,760px);border-radius:26px 26px 0 0;transform:translateY(100%)}
+  .cal-panel{width:100%;max-height:92dvh;border-radius:26px 26px 0 0;transform:translateY(100%)}
   .cal-head{padding:14px 14px 14px 18px}
   .cal-title{font-size:19px}.cal-sub{font-size:13px}
 }
