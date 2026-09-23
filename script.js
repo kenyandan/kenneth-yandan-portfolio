@@ -110,20 +110,20 @@
     ["ghl", "Flinders Lane", "https://flinderslaneoffers.com/giftcard629754", "07"],
     ["ghl", "Harv Eker FFC", "https://info.harvekeronline.com/ffc-letter?dfp=o2g7BlZwk2", "08"],
     ["ghl", "AMD Digital Solutions", "https://amddigitalsolutions.com/home-page", "09"],
-    ["auto", "Gift Card Optin Confirmation & 30 Days Reminder", "https://drive.google.com/file/d/1mNaJ9aRRL5myhai1aI0Ht1NSynt4XzmC/view?usp=sharing", "10"],
-    ["auto", "VSL Optin Sequence", "https://drive.google.com/file/d/1ZZ0V_iL7wKYb_c8IIwxxlT_ecCvbss02/view?usp=sharing", "11"],
+    ["auto", "Gift Card Opt-in Confirmation & 30-Day Reminder", "https://drive.google.com/file/d/1mNaJ9aRRL5myhai1aI0Ht1NSynt4XzmC/view?usp=sharing", "10"],
+    ["auto", "VSL Opt-in Sequence", "https://drive.google.com/file/d/1ZZ0V_iL7wKYb_c8IIwxxlT_ecCvbss02/view?usp=sharing", "11"],
     ["auto", "Best Year Email Sequence", "https://attachment.freshdesk.com/inline/attachment?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MTIxNTM1MzI3NDgsImRvbWFpbiI6ImJvbGRzb2x1dGlvbnMuZnJlc2hkZXNrLmNvbSIsImFjY291bnRfaWQiOjE1NTMzM30.HSnHEY_W4nzSiZt5Diwd63Y_FBJo4CsnzE5UzFn0S3A", "14"],
     ["auto", "Ebook", "https://attachment.freshdesk.com/inline/attachment?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MTIxNTMzMjU4OTYsImRvbWFpbiI6ImJvbGRzb2x1dGlvbnMuZnJlc2hkZXNrLmNvbSIsImFjY291bnRfaWQiOjE1NTMzM30.NJh3uOrlH7HFHbkXc4CKTT7WyHxGi6SmfQs8XX6o6Nw", "15"],
     ["auto", "Flashcards Lead Magnet Form Automation", "https://drive.google.com/file/d/1-VJxtIDSUQVCoX_h0DhKCbjZmPC3zcEc/view?usp=sharing", "16"],
     ["zap", "Zapier \u2192 Close", "https://attachment.freshdesk.com/inline/attachment?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MTIxNTM5MTYxNjcsImRvbWFpbiI6ImJvbGRzb2x1dGlvbnMuZnJlc2hkZXNrLmNvbSIsImFjY291bnRfaWQiOjE1NTMzM30.kNVlg54lgBvGIF7g6y963JsBjUaHXgfdPx6uGzIQ2tA", "17"],
     ["zap", "Stripe Failed Payment Follow-up", "https://drive.google.com/file/d/1tP0OUcb_K-ozup7tkwcBrw28951JQ-zD/view?usp=sharing", "18"],
-    ["zap", "Passkit/GHL Generate Gift Card Pass", "https://drive.google.com/file/d/1lmTl_vPIaZt2tLHhE5NbYWHPxZp-U4Pg/view?usp=sharing", "19"],
-    ["zap", "Passkit/GHL Generate Loyalty Pass", "https://drive.google.com/file/d/19K_iPl91841VEm8LLIfbS_AMjSmebfcE/view?usp=sharing", "20"],
-    ["zap", "Webinargeek/GHL", "https://drive.google.com/file/d/18MeNySXEGFeNKKf-AtKJ6yy9f6asaP8o/view?usp=sharing", "21"],
+    ["zap", "PassKit/GHL Generate Gift Card Pass", "https://drive.google.com/file/d/1lmTl_vPIaZt2tLHhE5NbYWHPxZp-U4Pg/view?usp=sharing", "19"],
+    ["zap", "PassKit/GHL Generate Loyalty Pass", "https://drive.google.com/file/d/19K_iPl91841VEm8LLIfbS_AMjSmebfcE/view?usp=sharing", "20"],
+    ["zap", "WebinarGeek/GHL", "https://drive.google.com/file/d/18MeNySXEGFeNKKf-AtKJ6yy9f6asaP8o/view?usp=sharing", "21"],
     ["wp", "Holistic Sleep Coaching \u2014 Success", "https://holisticsleepcoaching.com/sleepcoachingsuccess/", "22"],
     ["wp", "Valehna Zemoff \u2014 Connect", "https://www.valehnazemoff.com/connect/", "23"],
     ["wp", "Holistic Sleep Coaching \u2014 Revolution", "https://holisticsleepcoaching.com/holistic-sleep-coaching-revolution/", "24"],
-    ["wp", "Blackwing \u2014 5 Day Fast Start Program", "https://blackwing.com.au/5dayfaststartprogram-start/", "25"],
+    ["wp", "Blackwing \u2014 5-Day Fast Start Program", "https://blackwing.com.au/5dayfaststartprogram-start/", "25"],
   ];
   const arrow = '<svg class="ar" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>';
   const list = $('#list');
@@ -154,7 +154,7 @@
     const extra = vis.length - LIMIT;
     more.hidden = extra <= 0;
     more.setAttribute('aria-expanded', expanded);
-    more.firstElementChild.textContent = expanded ? 'Show fewer' : `See ${extra} more projects`;
+    more.firstElementChild.textContent = expanded ? 'Show fewer' : `See ${extra} more project${extra === 1 ? '' : 's'}`;
     more.classList.toggle('open', expanded);
   };
   more.addEventListener('click', () => { expanded = !expanded; renderList(); });
@@ -178,7 +178,7 @@
     active = it;
     $('#peek-t').textContent = it.dataset.t; $('#peek-cat').textContent = cats[it.dataset.c];
     pimg.classList.remove('ok'); pimg.onload = () => pimg.classList.add('ok');
-    pimg.src = `assets/previews/${it.dataset.p}.png`;
+    pimg.src = `assets/previews/${it.dataset.p}.webp`;
     peek.classList.add('show');
   };
   const hidePeek = () => { active = null; peek.classList.remove('show'); };
@@ -191,7 +191,9 @@
     list.addEventListener('pointerleave', hidePeek);
     list.addEventListener('focusin', e => { const it = e.target.closest('.item'); if (!it) return; const r = it.getBoundingClientRect(); place(r.right - 380, r.top + r.height / 2); showPeek(it); });
     list.addEventListener('focusout', hidePeek);
-    setTimeout(() => work.forEach(w => { const im = new Image(); im.src = `assets/previews/${w[3]}.png`; }), 3000);
+    // warm the preview cache only once the project list is near the viewport
+    const warm = new IntersectionObserver(es => { if (!es[0].isIntersecting) return; warm.disconnect(); work.forEach(w => { const im = new Image(); im.src = `assets/previews/${w[3]}.webp`; }); }, { rootMargin: '600px' });
+    warm.observe(list);
   }
 
   // ambient background: floating automation icons
