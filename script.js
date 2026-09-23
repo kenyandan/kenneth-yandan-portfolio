@@ -74,40 +74,30 @@
     b.addEventListener('pointerleave', () => b.style.transform = '');
   });
 
-  // workflow demo
-  const steps = [
-    ['A lead fills your Meta form', 'Someone taps your Facebook or Instagram lead ad and submits their details. The lead is captured instantly, with source and campaign tracked.'],
-    ['Data moves automatically', 'A webhook or Zapier zap sends the lead into GoHighLevel and any other tool in your stack, with fields mapped so nothing is retyped.'],
-    ['Contact and pipeline created', 'GHL creates or updates the contact, tags the source, opens an opportunity in the right pipeline stage and assigns an owner.'],
-    ['Speed-to-lead SMS', 'A friendly text goes out within seconds from a properly registered number (A2P 10DLC), with quiet hours and opt-out handled.'],
-    ['Email nurture takes over', 'If they don’t reply, a timed email and SMS sequence follows up, stopping automatically the moment they respond or book.'],
-    ['Call lands on the calendar', 'They book through your calendar, reminders reduce no-shows, and the pipeline moves. Your team only shows up for the conversation.']
-  ];
-  const nodes = $$('.node');
-  const mobile = matchMedia('(max-width:980px)');
-  // on small screens the description opens directly under the tapped step
-  const inline = nodes.map(n => { const d = document.createElement('div'); d.className = 'idetail'; n.closest('li').appendChild(d); return d; });
-  let cur = 0, timer;
-  const show = i => {
-    cur = i;
-    nodes.forEach((n, k) => { n.classList.toggle('on', k === i); n.setAttribute('aria-pressed', k === i); n.setAttribute('aria-expanded', k === i); });
-    $('#d-step').textContent = `Step ${i + 1} / ${steps.length}`;
-    $('#d-title').textContent = steps[i][0];
-    $('#d-text').textContent = steps[i][1];
-    inline.forEach((d, k) => { d.innerHTML = ''; if (k !== i) return; const t = document.createElement('h3'), p = document.createElement('p'); t.textContent = steps[i][0]; p.textContent = steps[i][1]; d.append(t, p); });
+  // live demo preview: loops a mini version of /demo/ while it is on screen
+  const pvSteps = $$('#pv-steps li'), pvCard = $('#pv-card'), pvSms = $('#pv-sms'), pvMail = $('#pv-mail'), pvLive = $('#pv-live');
+  let pvI = -1, pvTimer = null;
+  const pvShow = i => {
+    pvSteps.forEach((li, k) => { li.classList.toggle('done', k < i); li.classList.toggle('run', k === i); });
+    pvCard.style.setProperty('--s', i >= 5 ? 2 : i >= 4 ? 1 : 0);
+    pvCard.classList.toggle('show', i >= 2);
+    pvSms.classList.toggle('show', i >= 3);
+    pvMail.classList.toggle('show', i >= 4);
+    pvLive.textContent = i >= pvSteps.length ? 'Complete' : 'Running';
+    pvLive.classList.toggle('ok', i >= pvSteps.length);
   };
-  const stop = () => clearInterval(timer);
-  const play = () => { stop(); if (reduce || mobile.matches) return; timer = setInterval(() => show((cur + 1) % steps.length), 3200); };
-  nodes.forEach((n, i) => n.addEventListener('click', () => {
-    show(i); stop();
-    if (mobile.matches) requestAnimationFrame(() => inline[i].scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' }));
-  }));
-  const fu = $('.flow-ui');
-  fu.addEventListener('pointerenter', stop); fu.addEventListener('pointerleave', play);
-  fu.addEventListener('focusin', stop);
-  mobile.addEventListener('change', play);
-  show(0);
-  new IntersectionObserver(es => es[0].isIntersecting ? play() : stop()).observe(fu);
+  const pvTick = () => {
+    pvI = pvI >= pvSteps.length ? -1 : pvI + 1;
+    pvShow(pvI);
+    pvTimer = setTimeout(pvTick, pvI === pvSteps.length ? 2600 : pvI === -1 ? 500 : 1100);
+  };
+  if (pvSteps.length) {
+    if (reduce) pvShow(pvSteps.length);
+    else new IntersectionObserver(es => {
+      clearTimeout(pvTimer);
+      if (es[0].isIntersecting) pvTick();
+    }, { threshold: .25 }).observe($('.pv'));
+  }
 
   // work list
   const cats = { ghl: 'GHL Page', auto: 'Automation', zap: 'Zapier', wp: 'WordPress' };
@@ -442,7 +432,6 @@
     batchIn('.job', { y: 46, opacity: 0 });
     batchIn('.card', { y: 70, opacity: 0, scale: .95, rotate: 1.5 });
     batchIn('.stats > div', { y: 34, opacity: 0 });
-    batchIn('.node', { y: 30, opacity: 0 }, { stagger: .07 });
 
     // hero: portrait parallax + gentle exit
     const heroImg = $('.frame img');

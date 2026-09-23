@@ -47,15 +47,16 @@
   </a>
   <nav aria-label="Primary" class="links" id="menu">
     <a href="#services">Services</a>
-    <a href="#flow">How it works</a>
     <a href="#work">Work</a>
     <a href="#experience">Experience</a>
     <a href="#proof">Reviews</a>
+    <a href="/demo/" class="m-only nav-demo"><i aria-hidden="true"></i>Live demo</a>
   </nav>
   <div class="nav-end">
     <button class="icon-btn" id="theme" type="button" aria-label="Toggle dark mode">
       <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
     </button>
+    <a class="btn btn-sm btn-demo" href="/demo/" data-magnet><i aria-hidden="true"></i>Live demo</a>
     <a class="btn btn-sm" href="https://calendly.com/kennethyandan/contact" target="_blank" rel="noopener noreferrer" data-magnet>Book a call</a>
     <button class="icon-btn burger" id="burger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="menu">
       <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg>
@@ -83,6 +84,7 @@
         </a>
         <a class="btn btn-ghost" href="#work" data-magnet>See selected work</a>
       </div>
+      <a class="demo-pill" href="/demo/"><span class="lv mono"><i aria-hidden="true"></i>Live</span><span>Try my automation demo: watch a lead become a booked call</span><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
     </div>
     <figure class="portrait">
       <div class="frame">
@@ -141,27 +143,51 @@
   </ul>
 </section>
 
-<!-- FLOW -->
-<section class="flow" id="flow" aria-labelledby="flow-h">
-  <div class="wrap">
-    <p class="eyebrow reveal">03 — How it works</p>
-    <h2 id="flow-h" class="reveal big">One lead, <em>six steps</em>, zero manual work.</h2>
-    <p class="sub reveal">A typical system I build. Tap a step to see what happens.</p>
-    <div class="flow-ui">
-      <ol class="nodes" id="nodes">
-        <li><button type="button" class="node on" data-i="0"><span class="mono">Trigger</span>Meta lead form</button></li>
-        <li><button type="button" class="node" data-i="1"><span class="mono">Sync</span>Zapier / webhook</button></li>
-        <li><button type="button" class="node" data-i="2"><span class="mono">CRM</span>Contact + pipeline</button></li>
-        <li><button type="button" class="node" data-i="3"><span class="mono">Speed-to-lead</span>SMS in seconds</button></li>
-        <li><button type="button" class="node" data-i="4"><span class="mono">Nurture</span>Email sequence</button></li>
-        <li><button type="button" class="node" data-i="5"><span class="mono">Convert</span>Call booked</button></li>
-      </ol>
-      <div class="detail" aria-live="polite">
-        <span class="mono" id="d-step">Step 1 / 6</span>
-        <h3 id="d-title"></h3>
-        <p id="d-text"></p>
+<!-- LIVE DEMO -->
+<section class="dsec" id="demo" aria-labelledby="demo-h">
+  <div class="dsec-bg" aria-hidden="true"></div>
+  <div class="wrap dsec-grid">
+    <div class="dsec-copy">
+      <p class="eyebrow reveal">03 — Live demo</p>
+      <h2 id="demo-h" class="reveal big">Don’t read about it. <em>Run it.</em></h2>
+      <p class="dsec-lead reveal">Fill in a real-looking landing page and watch the workflow, pipeline and follow-up fire in real time. It’s the same kind of GoHighLevel system I build for clients.</p>
+      <ul class="dsec-list reveal">
+        <li><i aria-hidden="true"></i>Workflow runs step by step</li>
+        <li><i aria-hidden="true"></i>Pipeline card moves on its own</li>
+        <li><i aria-hidden="true"></i>SMS &amp; email go out in seconds</li>
+      </ul>
+      <div class="dsec-cta reveal">
+        <a class="btn dsec-btn" href="/demo/" data-magnet><span class="lv mono"><i aria-hidden="true"></i>Live</span>Launch the live demo
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+        <span class="mono">Takes about 60 seconds</span>
       </div>
     </div>
+
+    <a class="pv reveal" href="/demo/" aria-label="Open the live automation demo">
+      <div class="pv-bar"><span class="pv-dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="mono">workflow · new lead intake</span><span class="pv-live mono" id="pv-live">Running</span></div>
+      <div class="pv-body" aria-hidden="true">
+        <ol class="pv-steps" id="pv-steps">
+          <li><b class="mono">01</b>Form submitted<span class="mono">trigger</span></li>
+          <li><b class="mono">02</b>Contact created + tagged<span class="mono">crm</span></li>
+          <li><b class="mono">03</b>Opportunity → New Lead<span class="mono">pipeline</span></li>
+          <li><b class="mono">04</b>Speed-to-lead SMS<span class="mono">0.8s</span></li>
+          <li><b class="mono">05</b>Welcome email sent<span class="mono">email</span></li>
+          <li><b class="mono">06</b>Call booked<span class="mono">calendar</span></li>
+        </ol>
+        <div class="pv-side">
+          <div class="pv-pipe">
+            <div class="pv-cols"><span class="mono">New lead</span><span class="mono">Contacted</span><span class="mono">Booked</span></div>
+            <div class="pv-lane"><div class="pv-card" id="pv-card"><b>Jamie</b><small>Roof inspection</small></div></div>
+          </div>
+          <div class="pv-msgs">
+            <p class="pv-sms" id="pv-sms"><span class="mono">SMS · just now</span>Hi Jamie 👋 thanks for reaching out! Grab a time here: nlroof.co/book</p>
+            <p class="pv-mail" id="pv-mail"><span class="mono">Email</span>Your free inspection: next steps</p>
+          </div>
+        </div>
+      </div>
+      <span class="pv-go mono">Click to try it yourself ↗</span>
+    </a>
   </div>
 </section>
 
