@@ -124,10 +124,11 @@
     ["wp", "Valehna Zemoff \u2014 Connect", "https://www.valehnazemoff.com/connect/", "23"],
     ["wp", "Holistic Sleep Coaching \u2014 Revolution", "https://holisticsleepcoaching.com/holistic-sleep-coaching-revolution/", "24"],
     ["wp", "Blackwing \u2014 5-Day Fast Start Program", "https://blackwing.com.au/5dayfaststartprogram-start/", "25"],
+    ["ghl", "Mourning Doves Play", "https://mourningdovesplay.com/", "26"],
   ];
   const arrow = '<svg class="ar" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>';
   const list = $('#list');
-  const FEATURED = [2, 3, 4, 8, 15, 16];   // positions in the list above
+  const FEATURED = [22, 2, 3, 4, 8, 15, 16];   // positions in the list above
   const LIMIT = 6;
   const items = work.map(([c, t, url, pid], i) => {
     const li = document.createElement('li');
